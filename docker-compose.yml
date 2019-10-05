@@ -1,0 +1,52 @@
+version: '3.2'
+services:
+  gofherd:
+    container_name: gofherd
+    build:
+      context: gofherd
+      dockerfile: Dockerfile
+    expose:
+      - 5555
+
+  caddy:
+    build:
+      context: caddy
+      dockerfile: Dockerfile
+    container_name: caddy
+    ports:
+      - "9090:9090"
+      - "3000:3000"
+      - "5555:5555"
+    environment:
+      - ADMIN_USER=${ADMIN_USER:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+    restart: unless-stopped
+
+  grafana:
+    build:
+      context: grafana
+      dockerfile: Dockerfile
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    expose:
+      - 3000
+
+  prometheus:
+    build:
+      context: prometheus
+      dockerfile: Dockerfile
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    expose:
+      - 9090

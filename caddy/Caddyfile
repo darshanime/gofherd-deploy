@@ -1,0 +1,29 @@
+:9090 {
+    basicauth / {$ADMIN_USER} {$ADMIN_PASSWORD}
+    proxy / prometheus:9090 {
+            transparent
+        }
+
+    log
+    errors stderr
+    tls off
+}
+
+:3000 {
+    proxy / grafana:3000 {
+            transparent
+            websocket
+        }
+    log
+    errors stderr
+    tls off
+}
+
+:5555 {
+    proxy / gofherd:5555 {
+            transparent
+        }
+    log
+    errors stderr
+    tls off
+}
