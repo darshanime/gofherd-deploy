@@ -32,7 +32,6 @@ func ProcessWork(w *gf.Work) gf.Status {
 	start := time.Now()
 	http.Get(w.Body.(string))
 	w.SetResult(time.Since(start))
-	go herd.SendWork(*w)
 	return gf.Success
 }
 
